@@ -1,0 +1,70 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  background: #f5f6f8;
+  color: #1f2937;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a {
+  text-decoration: none;
+}
+
+@media print {
+  body.printing-invoice .sidebar,
+  body.printing-invoice .header {
+    display: none !important;
+  }
+
+  body.printing-invoice .page-header,
+  body.printing-invoice .search-section,
+  body.printing-invoice .invoice-card {
+    display: none !important;
+  }
+
+  body.printing-invoice .modal-overlay {
+    position: static !important;
+    display: block !important;
+    background: none !important;
+    padding: 0 !important;
+  }
+
+  body.printing-invoice .invoice-details {
+    width: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    padding: 20px !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  body.printing-invoice .close-button,
+  body.printing-invoice .print-button {
+    display: none !important;
+  }
+}
