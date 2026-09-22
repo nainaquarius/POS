@@ -1,29 +1,30 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import api from '../services/api'
 
 const error = ref('')
 const loading = ref(false)
-const invoices = ref([])
+const invoiceNumber = ref('')
+const vatRecord = ref(null)
 
-const fetchInvoices = async () => {
-  error.value = ''
+const generateVatRecord = async () => {
   loading.value = true
+  error.value = ''
 
   try {
-    const response = await api.get('/vat')
-    invoices.value = response.data
-    console.log(response.data)
+    const response = await api.post('/vat/', {
+      invoice_number: invoiceNumber.value,
+    })
+    vatRecord.value = response.data
   } catch (err) {
     console.log(err)
+    error.value = err?.response?.data?.detail || 'Something went wrong'
   } finally {
     loading.value = false
   }
 }
 
-onMounted(() => {
-  fetchInvoices()
-})
+generateVatRecord()
 </script>
 
 <template>
