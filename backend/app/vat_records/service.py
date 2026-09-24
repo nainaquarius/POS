@@ -1,40 +1,41 @@
 from app.database.database import invoices_collection
-from app.vat_records.schema import VatRecordCreate, VatRecordResponse
-from fastapi import HTTPException, status
+from app.vat_records.schema import VatRecordResponse
+from app.database.database import vat_records_collection
+from datetime import datetime
 
-async def createRecord(data: VatRecordCreate):
+async def getVatRecords(from_date: str | None = None,to_date: str | None = None):
+  query = {}
 
-  invoice = await invoices_collection.find_one({
-    "invoice_number" : data.invoice_number
-  })
+  if from_date and to_date:
+    start_date = datetime.fromisoformat(from_date)
+    end_date = datetime.fromisoformat(to_date)
 
-  if not invoice:
-    raise HTTPException(
-      status_code=status.HTTP_404_NOT_FOUND,
-      detail="Invoice not found"
+    end_date = end_date.replace(
+      hour=23,
+      minute=59,
+      second=59,
+      microsecond=999999
     )
 
-  product_names = []
+    query["date"] = {
+      "$gte" : start_date,
+      "$lte" : end_date
+    }
 
-  for item in invoice["items"]:
+    records = await vat_records_collection.find(query).sort(
+      "date",
+      1
+    ).to_list(length=None)
 
-    product_names.append(item["product_name"])
+    return [
+      VatRecordResponse(
+        invoice_number=record["invoice_number"],
+        product_names=record["product_names"],
+        date=record["date"],
+        invoice_price=record["invoice_price"],
+        vat=record["vat"],
+        total_amount=record["total_amount"]
+      )
 
-  product_names = ", ".join(product_names)
-
-  # product_names = ", ".join(
-  #   [item["product_name"] for item in invoice["items"] ]
-  # )
-
-  invoice_price = invoice["total"]
-  vat = invoice_price * 0.05
-  total_amount = invoice_price + vat
-
-  return VatRecordResponse(
-    invoice_number=invoice["invoice_number"],
-    product_names=product_names,
-    date=invoice["created_at"],
-    invoice_price=invoice_price,
-    vat=vat,
-    total_amount=total_amount
-  )
+      for record in records
+    ]
