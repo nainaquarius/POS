@@ -4,7 +4,8 @@ from fastapi import HTTPException, status
 from app.database.database import (
     client,
     products_collection,
-    invoices_collection
+    invoices_collection,
+    vat_records_collection
 )
 from datetime import datetime, timezone
 import uuid
@@ -96,6 +97,27 @@ async def create_invoice(data: InvoiceCreate, current_user):
 
       result = await invoices_collection.insert_one(
         invoice,
+        session=session
+      )
+
+      vat = total * 0.05
+      total_amount = total + vat
+
+      product_names = ", ".join(
+        item.product_name for item in invoice_items
+      )
+
+      vat_record = {
+        "invoice_number": invoice["invoice_number"],
+        "product_names": product_names,
+        "date": now,
+        "invoice_price": total,
+        "vat": vat,
+        "total_amount": total_amount
+      }
+
+      await vat_records_collection.insert_one(
+        vat_record,
         session=session
       )
 
