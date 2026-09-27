@@ -1,9 +1,12 @@
+from app.config import settings
+
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from app.auth.router import router as auth_router
 from app.products.router import router as product_router
 from app.invoices.router import router as invoice_router
 from app.stock.router import router as stock_router
-from fastapi.middleware.cors import CORSMiddleware
 from app.vat_records.router import router as vat_router
 
 app = FastAPI(
@@ -13,7 +16,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[settings.frontend_url],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
